@@ -24,3 +24,11 @@ async def websocket_endpoint (websocket: WebSocket) -> None:
 
 	except WebSocketDisconnect:
 		await manager.close_connection(connection)
+
+	except Exception as error:
+		await connection.send_json({
+			'type' : 'error',
+			'data' : str(error)
+		})
+
+		await manager.close_connection(connection)
