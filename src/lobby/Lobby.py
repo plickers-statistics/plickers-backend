@@ -38,6 +38,12 @@ class Lobby:
 		Получена информация о пользователе
 		"""
 
+		assert not self.user_identifier, 'You have already logged in before'
+
+		assert data['version']
+		assert data['identifier']
+		assert data['name']
+
 		self.extension_version = data['version']
 		self.user_identifier   = data['identifier']
 
@@ -53,8 +59,10 @@ class Lobby:
 		Получена информация о вопросе
 		"""
 
-		if self.user_identifier is None:
-			raise ValueError('User information not transferred')
+		assert self.user_identifier, 'User information not transferred'
+
+		assert data['formulationHTML']
+		assert data['identifier']
 
 		self.question_identifier = data['identifier']
 
@@ -72,6 +80,12 @@ class Lobby:
 
 			# options
 			for option in data['options']:
+				option_formulation_html = option['formulationHTML']
+				option_identifier       = option['identifier']
+
+				assert option_formulation_html
+				assert option_identifier
+
 				with connection.cursor() as cursor:
 					cursor.execute('''
 						INSERT INTO `options`
@@ -82,8 +96,8 @@ class Lobby:
 						)
 					''', {
 						'question_identifier' : self.question_identifier,
-						'option_identifier'   : option['identifier'],
-						'formulation_html'    : option['formulationHTML']
+						'option_identifier'   : option_identifier,
+						'formulation_html'    : option_formulation_html
 					})
 
 			# answer
@@ -107,8 +121,9 @@ class Lobby:
 		Получена информация о выбранном ответе
 		"""
 
-		if self.user_identifier is None or self.question_identifier is None:
-			raise ValueError('User or question information not passed')
+		assert self.user_identifier and self.question_identifier, 'User or question information not passed'
+
+		assert data
 
 		with self.database.get_connection() as connection:
 			with connection.cursor() as cursor:
