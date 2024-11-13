@@ -136,6 +136,7 @@ class Lobby:
 					}
 				)
 
+			# options recalculated
 			with connection.cursor(dictionary = True) as cursor:
 				cursor.execute('''
 					SELECT
