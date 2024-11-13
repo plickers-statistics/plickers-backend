@@ -144,8 +144,11 @@ class Lobby:
 						COUNT(*)              AS `votes`,
 						JSON_ARRAYAGG(`name`) AS `users`
 					FROM `answers` JOIN `users` ON `answers`.`user_identifier` = `users`.`identifier`
+					WHERE `question_identifier` = %(question_identifier)s
 					GROUP BY `option_identifier` LIMIT 100
-				''')
+				''', {
+					'question_identifier': self.question_identifier
+				})
 
 				options = cursor.fetchall()
 				total   = sum([option['votes'] for option in options])
