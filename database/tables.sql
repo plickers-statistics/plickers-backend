@@ -1,4 +1,8 @@
 
+DROP DATABASE IF EXISTS `__plickers`;
+CREATE DATABASE `__plickers`;
+USE `__plickers`;
+
 -- пользователи
 CREATE TABLE `users`
 (
