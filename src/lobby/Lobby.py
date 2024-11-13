@@ -1,5 +1,5 @@
 
-from distributed_websocket import Connection, WebSocketManager
+from distributed_websocket import Connection, WebSocketManager, Message
 from mysql.connector.pooling import MySQLConnectionPool
 
 
@@ -120,5 +120,29 @@ class Lobby:
 						'option_identifier'   : data
 					}
 				)
+
+			with connection.cursor(dictionary = True) as cursor:
+				cursor.execute('''
+					SELECT
+						`option_identifier`   AS `identifier`,
+						COUNT(*)              AS `votes`,
+						JSON_ARRAYAGG(`name`) AS `users`
+					FROM `answers` JOIN `users` ON `answers`.`user_identifier` = `users`.`identifier`
+					GROUP BY `option_identifier` LIMIT 100
+				''')
+
+				options = cursor.fetchall()
+				total   = sum([option['votes'] for option in options])
+
+				for option in options:
+					option['percentage'] = option['votes'] / total * 100
+
+				self.manager.broadcast(Message(
+					typ  = '',
+					data = {
+						'type': 'options_recalculated',
+						'data': options
+					}
+				))
 
 			connection.commit()
