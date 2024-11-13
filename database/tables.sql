@@ -60,5 +60,5 @@ CREATE TABLE `answers`
 
     `user_identifier`     INTEGER NOT NULL REFERENCES `users`     (`identifier`),
     `question_identifier` INTEGER NOT NULL REFERENCES `questions` (`identifier`),
-    `option_identifier`   INTEGER NOT NULL
+    `option_identifier`   INTEGER NOT NULL REFERENCES `options`   (`option_identifier`)
 );
