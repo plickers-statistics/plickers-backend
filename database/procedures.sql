@@ -12,4 +12,6 @@ BEGIN
             UPDATE `users` SET `name` = user_name, `changed_at` = CURRENT_TIMESTAMP() WHERE `identifier` = user_identifier;
         END IF;
     END IF;
+
+    COMMIT;
 END;
