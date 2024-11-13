@@ -38,11 +38,11 @@ class Lobby:
 		Получена информация о пользователе
 		"""
 
-		assert not self.user_identifier, 'You have already logged in before'
+		assert self.user_identifier is None, 'You have already logged in before'
 
-		assert data['version']
-		assert data['identifier']
-		assert data['name']
+		assert data['version']    is not None
+		assert data['identifier'] is not None
+		assert data['name']       is not None
 
 		self.extension_version = data['version']
 		self.user_identifier   = data['identifier']
@@ -59,10 +59,10 @@ class Lobby:
 		Получена информация о вопросе
 		"""
 
-		assert self.user_identifier, 'User information not transferred'
+		assert self.user_identifier is not None, 'User information not transferred'
 
-		assert data['formulationHTML']
-		assert data['identifier']
+		assert data['formulationHTML'] is not None
+		assert data['identifier']      is not None
 
 		self.question_identifier = data['identifier']
 
@@ -83,8 +83,8 @@ class Lobby:
 				option_formulation_html = option['formulationHTML']
 				option_identifier       = option['identifier']
 
-				assert option_formulation_html
-				assert option_identifier
+				assert option_formulation_html is not None
+				assert option_identifier       is not None
 
 				with connection.cursor() as cursor:
 					cursor.execute('''
@@ -121,9 +121,9 @@ class Lobby:
 		Получена информация о выбранном ответе
 		"""
 
-		assert self.user_identifier and self.question_identifier, 'User or question information not passed'
+		assert self.user_identifier is not None and self.question_identifier is not None, 'User or question information not passed'
 
-		assert data
+		assert data is not None
 
 		with self.database.get_connection() as connection:
 			with connection.cursor() as cursor:
