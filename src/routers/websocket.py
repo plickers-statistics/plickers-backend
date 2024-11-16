@@ -15,7 +15,7 @@ async def websocket_endpoint (websocket: WebSocket) -> None:
 	Новое вебсокет подключение
 	"""
 
-	identifier = random_string(100)
+	identifier = random_string(length = 100)
 	connection = await manager.new_connection(websocket, identifier)
 	lobby      = Lobby(database, manager, connection)
 
