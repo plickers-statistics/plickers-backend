@@ -31,4 +31,5 @@ async def websocket_endpoint (websocket: WebSocket) -> None:
 			'data' : str(error)
 		})
 
-		await manager.close_connection(connection)
+	finally:
+		manager.remove_connection(connection)
