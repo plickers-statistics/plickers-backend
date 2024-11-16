@@ -22,9 +22,7 @@ class Lobby:
 		Обрабатывает новые сообщения
 		"""
 
-		while True:
-			message = await self.connection.receive_json()
-
+		async for message in self.connection.iter_json():
 			parameter_type = message['type']
 			parameter_data = message['data']
 
