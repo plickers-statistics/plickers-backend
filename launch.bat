@@ -1,3 +1,3 @@
 
-fastapi dev launch.py
+python launch.py
 pause
