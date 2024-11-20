@@ -79,3 +79,20 @@ class DatabaseRequests:
 				)
 
 			connection.commit()
+
+	def change_user_answer (self, user_identifier: int, question_identifier: int, option_identifier: int) -> None:
+		"""
+		"""
+
+		with self.database.get_connection() as connection:
+			with connection.cursor() as cursor:
+				cursor.execute(
+					'UPDATE `answers` SET `option_identifier` = %(option_identifier)s WHERE `user_identifier` = %(user_identifier)s AND `question_identifier` = %(question_identifier)s',
+					{
+						'user_identifier'     : user_identifier,
+						'question_identifier' : question_identifier,
+						'option_identifier'   : option_identifier,
+					}
+				)
+
+			connection.commit()

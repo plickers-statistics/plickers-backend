@@ -113,18 +113,17 @@ class Lobby:
 
 		assert self.user_identifier is not None and self.question_identifier is not None, 'User or question information not passed'
 
-		assert data is not None
+		# ===== ===== ===== ===== =====
 
-		with self.database.get_connection() as connection:
-			with connection.cursor() as cursor:
-				cursor.execute(
-					'UPDATE `answers` SET `option_identifier` = %(option_identifier)s WHERE `user_identifier` = %(user_identifier)s AND `question_identifier` = %(question_identifier)s',
-					{
-						'user_identifier'     : self.user_identifier,
-						'question_identifier' : self.question_identifier,
-						'option_identifier'   : data
-					}
-				)
+		assert isinstance(data, int)
+
+		# ===== ===== ===== ===== =====
+
+		self.database.change_user_answer(
+			user_identifier     = self.user_identifier,
+			question_identifier = self.question_identifier,
+			option_identifier   = data,
+		)
 
 			# options recalculated
 			with connection.cursor(dictionary = True) as cursor:
@@ -153,5 +152,3 @@ class Lobby:
 						'data': options
 					}
 				))
-
-			connection.commit()
