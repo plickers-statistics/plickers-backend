@@ -39,12 +39,12 @@ class DatabaseRequests:
 			with connection.cursor() as cursor:
 				cursor.execute(
 					'''
-					INSERT INTO `options`
-						(`question_identifier`, `option_identifier`, `formulation_html`)
-					SELECT %(question_identifier)s, %(option_identifier)s, %(formulation_html)s
-					WHERE NOT EXISTS (
-						SELECT 1 FROM `options` WHERE `question_identifier` = %(question_identifier)s AND `option_identifier` = %(option_identifier)s
-					)
+						INSERT INTO `options`
+							(`question_identifier`, `option_identifier`, `formulation_html`)
+						SELECT %(question_identifier)s, %(option_identifier)s, %(formulation_html)s
+						WHERE NOT EXISTS (
+							SELECT 1 FROM `options` WHERE `question_identifier` = %(question_identifier)s AND `option_identifier` = %(option_identifier)s
+						)
 					''',
 
 					{
