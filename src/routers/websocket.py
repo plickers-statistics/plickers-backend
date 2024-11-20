@@ -1,7 +1,7 @@
 
 from fastapi import APIRouter
 from redis.commands.helpers import random_string
-from starlette.websockets import WebSocket, WebSocketDisconnect
+from starlette.websockets import WebSocket
 
 from src.lifespan import manager, database
 from src.lobby.Lobby import Lobby
