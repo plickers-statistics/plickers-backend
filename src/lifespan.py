@@ -3,10 +3,11 @@ from contextlib import asynccontextmanager
 
 from distributed_websocket import WebSocketManager
 from fastapi import FastAPI
-from mysql.connector.pooling import MySQLConnectionPool
+
+from src.database.DatabaseConnection import DatabaseConnection
 
 
-database = MySQLConnectionPool(
+database = DatabaseConnection(
 	username  = 'root',
 	password  = 'root',
 	database  = '__plickers',

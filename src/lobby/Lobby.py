@@ -1,6 +1,7 @@
 
 from distributed_websocket import Connection, WebSocketManager, Message
-from mysql.connector.pooling import MySQLConnectionPool
+
+from src.database.DatabaseConnection import DatabaseConnection
 
 
 class Lobby:
@@ -12,7 +13,7 @@ class Lobby:
 	user_identifier     : int | None = None
 	question_identifier : int | None = None
 
-	def __init__ (self, database: MySQLConnectionPool, manager: WebSocketManager, connection: Connection):
+	def __init__ (self, database: DatabaseConnection, manager: WebSocketManager, connection: Connection):
 		self.database   = database
 		self.manager    = manager
 		self.connection = connection
