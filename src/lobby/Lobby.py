@@ -59,67 +59,52 @@ class Lobby:
 			name       = parameter_name,
 		)
 
-	async def new_question_handler (self, data: dict[str]) -> None:
+	async def new_question_handler (self, data: dict[str, str | int | list]) -> None:
 		"""
 		Получена информация о вопросе
 		"""
 
 		assert self.user_identifier is not None, 'User information not transferred'
 
-		assert data['formulationHTML'] is not None
-		assert data['identifier']      is not None
+		# ===== ===== ===== ===== =====
 
-		self.question_identifier = data['identifier']
+		parameter_formulation_html = data['formulationHTML']
+		parameter_identifier       = data['identifier']
+		parameter_options          = data['options']
 
-		with self.database.get_connection() as connection:
+		assert isinstance(parameter_formulation_html, str)
+		assert isinstance(parameter_identifier,       int)
+		assert isinstance(parameter_options,          list)
 
-			# question
-			with connection.cursor() as cursor:
-				cursor.execute(
-					'INSERT IGNORE INTO `questions` (`identifier`, `formulation_html`) VALUES (%(identifier)s, %(formulation_html)s)',
-					{
-						'identifier'       : data['identifier'],
-						'formulation_html' : data['formulationHTML']
-					}
-				)
+		# ===== ===== ===== ===== =====
 
-			# options
-			for option in data['options']:
-				option_formulation_html = option['formulationHTML']
-				option_identifier       = option['identifier']
+		self.question_identifier = parameter_identifier
 
-				assert option_formulation_html is not None
-				assert option_identifier       is not None
+		# question
+		self.database.add_question_if_not_duplicated(
+			identifier       = parameter_identifier,
+			formulation_html = parameter_formulation_html,
+		)
 
-				with connection.cursor() as cursor:
-					cursor.execute('''
-						INSERT INTO `options`
-							(`question_identifier`, `option_identifier`, `formulation_html`)
-						SELECT %(question_identifier)s, %(option_identifier)s, %(formulation_html)s
-						WHERE NOT EXISTS (
-							SELECT 1 FROM `options` WHERE `question_identifier` = %(question_identifier)s AND `option_identifier` = %(option_identifier)s
-						)
-					''', {
-						'question_identifier' : self.question_identifier,
-						'option_identifier'   : option_identifier,
-						'formulation_html'    : option_formulation_html
-					})
+		# options
+		for option in parameter_options:
+			option_formulation_html = option['formulationHTML']
+			option_identifier       = option['identifier']
 
-			# answer
-			with connection.cursor() as cursor:
-				cursor.execute('''
-					INSERT INTO `answers`
-						(`user_identifier`, `question_identifier`, `option_identifier`)
-					SELECT %(user_identifier)s, %(question_identifier)s, NULL
-					WHERE NOT EXISTS (
-						SELECT 1 FROM `answers` WHERE `user_identifier` = %(user_identifier)s AND `question_identifier` = %(question_identifier)s
-					)
-				''', {
-					'user_identifier'     : self.user_identifier,
-					'question_identifier' : self.question_identifier
-				})
+			assert isinstance(option_formulation_html, str)
+			assert isinstance(option_identifier,       int)
 
-			connection.commit()
+			self.database.add_option_if_not_duplicated(
+				question_identifier     = self.question_identifier,
+				option_identifier       = option_identifier,
+				option_formulation_html = option_formulation_html,
+			)
+
+		# answer
+		self.database.add_answer_if_not_duplicated(
+			user_identifier     = self.user_identifier,
+			question_identifier = self.question_identifier
+		)
 
 	async def new_answer_handler (self, data: int) -> None:
 		"""
