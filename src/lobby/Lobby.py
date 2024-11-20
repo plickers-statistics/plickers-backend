@@ -103,7 +103,7 @@ class Lobby:
 		# answer
 		self.database.add_answer_if_not_duplicated(
 			user_identifier     = self.user_identifier,
-			question_identifier = self.question_identifier
+			question_identifier = self.question_identifier,
 		)
 
 	async def new_answer_handler (self, data: int) -> None:
