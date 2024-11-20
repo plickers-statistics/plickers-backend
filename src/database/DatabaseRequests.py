@@ -96,3 +96,33 @@ class DatabaseRequests:
 				)
 
 			connection.commit()
+
+	def get_answer_statistics (self, question_identifier: int) -> list:
+		"""
+		"""
+
+		with self.database.get_connection() as connection:
+			with connection.cursor(dictionary=True) as cursor:
+				cursor.execute(
+					'''
+						SELECT
+							`option_identifier`   AS `identifier`,
+							COUNT(*)              AS `votes`,
+							JSON_ARRAYAGG(`name`) AS `users`
+						FROM `answers` JOIN `users` ON `answers`.`user_identifier` = `users`.`identifier`
+						WHERE `question_identifier` = %(question_identifier)s
+						GROUP BY `option_identifier` LIMIT 100
+					''',
+
+					{
+						'question_identifier': question_identifier,
+					}
+				)
+
+				options = cursor.fetchall()
+				total   = sum([option['votes'] for option in options])
+
+				for option in options:
+					option['percentage'] = option['votes'] / total * 100
+
+				return options

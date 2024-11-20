@@ -125,30 +125,15 @@ class Lobby:
 			option_identifier   = data,
 		)
 
-			# options recalculated
-			with connection.cursor(dictionary = True) as cursor:
-				cursor.execute('''
-					SELECT
-						`option_identifier`   AS `identifier`,
-						COUNT(*)              AS `votes`,
-						JSON_ARRAYAGG(`name`) AS `users`
-					FROM `answers` JOIN `users` ON `answers`.`user_identifier` = `users`.`identifier`
-					WHERE `question_identifier` = %(question_identifier)s
-					GROUP BY `option_identifier` LIMIT 100
-				''', {
-					'question_identifier': self.question_identifier
-				})
+		# options recalculated
+		options = self.database.get_answer_statistics(
+			question_identifier = self.question_identifier,
+		)
 
-				options = cursor.fetchall()
-				total   = sum([option['votes'] for option in options])
-
-				for option in options:
-					option['percentage'] = option['votes'] / total * 100
-
-				self.manager.broadcast(Message(
-					typ  = '',
-					data = {
-						'type': 'options_recalculated',
-						'data': options
-					}
-				))
+		self.manager.broadcast(Message(
+			typ  = '',
+			data = {
+				'type': 'options_recalculated',
+				'data': options,
+			}
+		))
