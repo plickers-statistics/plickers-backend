@@ -1,7 +1,7 @@
 
 from distributed_websocket import Connection, WebSocketManager, Message
 
-from src.database.DatabaseConnection import DatabaseConnection
+from src.database.DatabaseRequests import DatabaseRequests
 
 
 class Lobby:
@@ -13,7 +13,7 @@ class Lobby:
 	user_identifier     : int | None = None
 	question_identifier : int | None = None
 
-	def __init__ (self, database: DatabaseConnection, manager: WebSocketManager, connection: Connection):
+	def __init__ (self, database: DatabaseRequests, manager: WebSocketManager, connection: Connection):
 		self.database   = database
 		self.manager    = manager
 		self.connection = connection
@@ -39,19 +39,22 @@ class Lobby:
 
 		assert self.user_identifier is None, 'You have already logged in before'
 
-		assert data['version']    is not None
-		assert data['identifier'] is not None
-		assert data['name']       is not None
+		# ===== ===== ===== ===== =====
 
-		self.extension_version = data['version']
-		self.user_identifier   = data['identifier']
+		parameter_version    = data['version']
+		parameter_identifier = data['identifier']
+		parameter_name       = data['name']
 
-		with self.database.get_connection() as connection:
-			with connection.cursor() as cursor:
-				cursor.callproc('REPLACE_IF_EXISTS_ELSE_ADD_USER', (
-					data['identifier'],
-					data['name']
-				))
+		assert isinstance(parameter_version,    str)
+		assert isinstance(parameter_identifier, int)
+		assert isinstance(parameter_name,       str)
+
+		# ===== ===== ===== ===== =====
+
+		self.extension_version = parameter_version
+		self.user_identifier   = parameter_identifier
+
+		self.database.replace_if_exists_else_add_user(parameter_identifier, parameter_name)
 
 	async def new_question_handler (self, data: dict[str]) -> None:
 		"""

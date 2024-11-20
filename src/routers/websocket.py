@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from redis.commands.helpers import random_string
 from starlette.websockets import WebSocket
 
-from src.lifespan import manager, database
+from src.lifespan import manager, database_requests
 from src.lobby.Lobby import Lobby
 
 
@@ -17,7 +17,7 @@ async def websocket_endpoint (websocket: WebSocket) -> None:
 
 	identifier = random_string(length = 100)
 	connection = await manager.new_connection(websocket, identifier)
-	lobby      = Lobby(database, manager, connection)
+	lobby      = Lobby(database_requests, manager, connection)
 
 	try:
 		await lobby.handler()

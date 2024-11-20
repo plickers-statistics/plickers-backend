@@ -5,14 +5,19 @@ from distributed_websocket import WebSocketManager
 from fastapi import FastAPI
 
 from src.database.DatabaseConnection import DatabaseConnection
+from src.database.DatabaseRequests import DatabaseRequests
 
 
-database = DatabaseConnection(
+database_connection = DatabaseConnection(
 	username  = 'root',
 	password  = 'root',
 	database  = '__plickers',
 	charset   = 'utf-8',
 	collation = 'utf8mb4_general_ci'
+)
+
+database_requests = DatabaseRequests(
+	connection = database_connection
 )
 
 manager = WebSocketManager(
