@@ -54,7 +54,10 @@ class Lobby:
 		self.extension_version = parameter_version
 		self.user_identifier   = parameter_identifier
 
-		self.database.replace_if_exists_else_add_user(parameter_identifier, parameter_name)
+		self.database.replace_if_exists_else_add_user(
+			identifier = parameter_identifier,
+			name       = parameter_name,
+		)
 
 	async def new_question_handler (self, data: dict[str]) -> None:
 		"""
