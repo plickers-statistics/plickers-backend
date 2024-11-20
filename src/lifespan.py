@@ -17,7 +17,7 @@ database_connection = DatabaseConnection(
 )
 
 database_requests = DatabaseRequests(
-	connection = database_connection
+	database = database_connection
 )
 
 manager = WebSocketManager(
