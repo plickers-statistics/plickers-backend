@@ -76,8 +76,8 @@ CREATE TABLE `answers`
     `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
 
     `student_identifier`  VARCHAR(24) NOT NULL REFERENCES `students` (`identifier`),
-    `question_identifier` INTEGER     NOT NULL REFERENCES `options` (`question_identifier`),
-    `option_identifier`   INTEGER         NULL REFERENCES `options` (`option_identifier`)
+    `question_identifier` INTEGER     NOT NULL REFERENCES `questions` (`identifier`),
+    `option_identifier`   INTEGER         NULL
 );
 
 /* ===== ===== ===== ===== ===== */
