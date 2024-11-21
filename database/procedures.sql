@@ -47,9 +47,8 @@ BEGIN
         IF (@first_name != parameter_first_name)
         THEN
             UPDATE `students` SET
-                `changed_at`       = CURRENT_TIMESTAMP(),
-                `first_name`       = parameter_first_name,
-                `class_identifier` = parameter_class_identifier
+                `changed_at` = CURRENT_TIMESTAMP(),
+                `first_name` = parameter_first_name
             WHERE `identifier` = parameter_identifier;
         END IF;
     END IF;
