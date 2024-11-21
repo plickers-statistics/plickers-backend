@@ -1,15 +1,56 @@
 
-CREATE OR REPLACE PROCEDURE REPLACE_IF_EXISTS_ELSE_ADD_USER (user_identifier INTEGER, user_name TEXT)
+CREATE OR REPLACE PROCEDURE REPLACE_IF_EXISTS_ELSE_ADD_CLASS
+(
+    IN parameter_identifier   VARCHAR(24),
+    IN parameter_name         TEXT,
+    IN parameter_teacher_name TEXT
+)
 BEGIN
-    SET @user_name := (SELECT `name` FROM `users` WHERE `identifier` = user_identifier LIMIT 1);
+    SELECT (@name := `name`), (@teacher_name := `teacher_name`) FROM `classes` WHERE `identifier` = parameter_identifier LIMIT 1;
 
-    IF (@user_name IS NULL)
+    IF (@name IS NULL)
     THEN
-        INSERT INTO `users` (`identifier`, `name`) VALUES (user_identifier, user_name);
+        INSERT INTO `classes`
+            (`identifier`, `name`, `teacher_name`)
+        VALUES
+            (parameter_identifier, parameter_name, parameter_teacher_name);
     ELSE
-        IF (@user_name != user_name)
+        IF (@name != parameter_name OR @teacher_name != parameter_teacher_name)
         THEN
-            UPDATE `users` SET `name` = user_name, `changed_at` = CURRENT_TIMESTAMP() WHERE `identifier` = user_identifier;
+            UPDATE `classes` SET
+                `changed_at`   = CURRENT_TIMESTAMP(),
+                `name`         = parameter_name,
+                `teacher_name` = parameter_teacher_name
+            WHERE `identifier` = parameter_identifier;
+        END IF;
+    END IF;
+
+    COMMIT;
+END;
+
+CREATE OR REPLACE PROCEDURE REPLACE_IF_EXISTS_ELSE_ADD_STUDENT
+(
+    IN parameter_identifier       VARCHAR(24),
+    IN parameter_first_name       TEXT,
+    IN parameter_class_identifier VARCHAR(24)
+)
+BEGIN
+    SET @first_name := (SELECT `first_name` FROM `students` WHERE `identifier` = parameter_identifier LIMIT 1);
+
+    IF (@first_name IS NULL)
+    THEN
+        INSERT INTO `students`
+            (`identifier`, `first_name`, `class_identifier`)
+        VALUES
+            (parameter_identifier, parameter_first_name, parameter_class_identifier);
+    ELSE
+        IF (@first_name != parameter_first_name)
+        THEN
+            UPDATE `students` SET
+                `changed_at`       = CURRENT_TIMESTAMP(),
+                `first_name`       = parameter_first_name,
+                `class_identifier` = parameter_class_identifier
+            WHERE `identifier` = parameter_identifier;
         END IF;
     END IF;
 
