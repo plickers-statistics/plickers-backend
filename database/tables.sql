@@ -3,33 +3,50 @@ DROP DATABASE IF EXISTS `__plickers`;
 CREATE DATABASE `__plickers`;
 USE `__plickers`;
 
--- пользователи
-CREATE TABLE `users`
+/* ===== ===== ===== ===== ===== */
+
+-- классы
+CREATE TABLE `classes`
 (
-    `identifier` INTEGER NOT NULL PRIMARY KEY,
+    `identifier` VARCHAR(24) PRIMARY KEY CHECK ( LENGTH(`identifier`) = 24 ),
 
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
 
-    `name` TEXT NOT NULL
+    `name`         TEXT NOT NULL,
+    `teacher_name` TEXT NOT NULL
+);
+
+-- студенты в классах
+CREATE TABLE `students`
+(
+    `identifier` VARCHAR(24) PRIMARY KEY CHECK ( LENGTH(`identifier`) = 24 ),
+
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+    `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+
+    `first_name`       TEXT        NOT NULL,
+    `class_identifier` VARCHAR(24) NOT NULL REFERENCES `classes` (`identifier`)
 );
 
 -- история подключений
 CREATE TABLE `connection_history`
 (
-    `identifier` INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `identifier` INTEGER PRIMARY KEY AUTO_INCREMENT,
 
     `connected_at`    TIMESTAMP NOT NULL,
     `disconnected_at` TIMESTAMP NOT NULL,
 
-    `ip_address`      TEXT    NOT NULL,
-    `user_identifier` INTEGER     NULL REFERENCES `users` (`identifier`)
+    `ip_address`         TEXT        NOT NULL,
+    `student_identifier` VARCHAR(24)     NULL REFERENCES `students` (`identifier`)
 );
+
+/* ===== ===== ===== ===== ===== */
 
 -- вопросы
 CREATE TABLE `questions`
 (
-    `identifier` INTEGER NOT NULL PRIMARY KEY,
+    `identifier` INTEGER PRIMARY KEY,
 
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
@@ -40,7 +57,7 @@ CREATE TABLE `questions`
 -- варианты ответов
 CREATE TABLE `options`
 (
-    `identifier` INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `identifier` INTEGER PRIMARY KEY AUTO_INCREMENT,
 
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
@@ -53,12 +70,14 @@ CREATE TABLE `options`
 -- ответы пользователей
 CREATE TABLE `answers`
 (
-    `identifier` INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `identifier` INTEGER PRIMARY KEY AUTO_INCREMENT,
 
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
 
-    `user_identifier`     INTEGER NOT NULL REFERENCES `users`     (`identifier`),
-    `question_identifier` INTEGER NOT NULL REFERENCES `questions` (`identifier`),
-    `option_identifier`   INTEGER     NULL
+    `student_identifier`  VARCHAR(24) NOT NULL REFERENCES `students` (`identifier`),
+    `question_identifier` INTEGER     NOT NULL REFERENCES `options` (`question_identifier`),
+    `option_identifier`   INTEGER         NULL REFERENCES `options` (`option_identifier`)
 );
+
+/* ===== ===== ===== ===== ===== */
