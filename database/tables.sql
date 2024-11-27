@@ -38,7 +38,8 @@ CREATE TABLE `connection_history`
     `disconnected_at` TIMESTAMP NOT NULL,
 
     `ip_address`         TEXT        NOT NULL,
-    `student_identifier` VARCHAR(24)     NULL REFERENCES `students` (`identifier`)
+    `student_identifier` VARCHAR(24)     NULL REFERENCES `students` (`identifier`),
+    `extension_version`  TEXT            NULL
 );
 
 /* ===== ===== ===== ===== ===== */
