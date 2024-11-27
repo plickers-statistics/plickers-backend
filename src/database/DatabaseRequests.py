@@ -7,13 +7,21 @@ class DatabaseRequests:
 	def __init__(self, database: DatabaseConnection):
 		self.database = database
 
-	def replace_if_exists_else_add_user (self, identifier: int, name: str) -> None:
+	def replace_if_exists_else_add_class_room (self, identifier: str, name: str, teacher_name: str) -> None:
 		"""
 		"""
 
 		with self.database.get_connection() as connection:
 			with connection.cursor() as cursor:
-				cursor.callproc('REPLACE_IF_EXISTS_ELSE_ADD_USER', (identifier, name))
+				cursor.callproc('REPLACE_IF_EXISTS_ELSE_ADD_CLASS_ROOM', (identifier, name, teacher_name))
+
+	def replace_if_exists_else_add_student (self, identifier: str, first_name: str, class_identifier: str) -> None:
+		"""
+		"""
+
+		with self.database.get_connection() as connection:
+			with connection.cursor() as cursor:
+				cursor.callproc('REPLACE_IF_EXISTS_ELSE_ADD_STUDENT', (identifier, first_name, class_identifier))
 
 	def add_question_if_not_duplicated (self, identifier: int, formulation_html: str) -> None:
 		"""
@@ -56,7 +64,7 @@ class DatabaseRequests:
 
 			connection.commit()
 
-	def add_answer_if_not_duplicated (self, user_identifier: int, question_identifier: int) -> None:
+	def add_answer_if_not_duplicated (self, student_identifier: str, question_identifier: int) -> None:
 		"""
 		"""
 
@@ -65,31 +73,31 @@ class DatabaseRequests:
 				cursor.execute(
 					'''
 						INSERT INTO `answers`
-							(`user_identifier`, `question_identifier`, `option_identifier`)
-						SELECT %(user_identifier)s, %(question_identifier)s, NULL
+							(`student_identifier`, `question_identifier`, `option_identifier`)
+						SELECT %(student_identifier)s, %(question_identifier)s, NULL
 						WHERE NOT EXISTS (
-							SELECT 1 FROM `answers` WHERE `user_identifier` = %(user_identifier)s AND `question_identifier` = %(question_identifier)s
+							SELECT 1 FROM `answers` WHERE `student_identifier` = %(student_identifier)s AND `question_identifier` = %(question_identifier)s
 						)
 					''',
 
 					{
-						'user_identifier'     : user_identifier,
+						'student_identifier'  : student_identifier,
 						'question_identifier' : question_identifier,
 					}
 				)
 
 			connection.commit()
 
-	def change_user_answer (self, user_identifier: int, question_identifier: int, option_identifier: int) -> None:
+	def change_user_answer (self, student_identifier: str, question_identifier: int, option_identifier: int) -> None:
 		"""
 		"""
 
 		with self.database.get_connection() as connection:
 			with connection.cursor() as cursor:
 				cursor.execute(
-					'UPDATE `answers` SET `option_identifier` = %(option_identifier)s WHERE `user_identifier` = %(user_identifier)s AND `question_identifier` = %(question_identifier)s',
+					'UPDATE `answers` SET `option_identifier` = %(option_identifier)s WHERE `student_identifier` = %(student_identifier)s AND `question_identifier` = %(question_identifier)s',
 					{
-						'user_identifier'     : user_identifier,
+						'student_identifier'  : student_identifier,
 						'question_identifier' : question_identifier,
 						'option_identifier'   : option_identifier,
 					}
@@ -106,10 +114,10 @@ class DatabaseRequests:
 				cursor.execute(
 					'''
 						SELECT
-							`option_identifier`   AS `identifier`,
-							COUNT(*)              AS `votes`,
-							JSON_ARRAYAGG(`name`) AS `users`
-						FROM `answers` JOIN `users` ON `answers`.`user_identifier` = `users`.`identifier`
+							`option_identifier`         AS `identifier`,
+							COUNT(*)                    AS `votes`,
+							JSON_ARRAYAGG(`first_name`) AS `users`
+						FROM `answers` JOIN `students` ON `answers`.`student_identifier` = `students`.`identifier`
 						WHERE `question_identifier` = %(question_identifier)s
 						GROUP BY `option_identifier` LIMIT 100
 					''',
