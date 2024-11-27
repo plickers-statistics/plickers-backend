@@ -136,14 +136,14 @@ class DatabaseRequests:
 				return options
 
 	def add_connection_to_history (
-			self,
+		self,
 
-			connected_at    : str,
-			disconnected_at : str,
+		connected_at    : str,
+		disconnected_at : str,
 
-			ip_address         : str,
-			student_identifier : str | None,
-			extension_version  : str | None,
+		ip_address         : str,
+		student_identifier : str | None,
+		extension_version  : str | None,
 	) -> None:
 		"""
 		"""
