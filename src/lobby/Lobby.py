@@ -10,7 +10,7 @@ class Lobby:
 	"""
 
 	extension_version   : str | None = None
-	user_identifier     : int | None = None
+	student_identifier  : str | None = None
 	question_identifier : int | None = None
 
 	def __init__ (self, database: DatabaseRequests, manager: WebSocketManager, connection: Connection):
@@ -32,31 +32,50 @@ class Lobby:
 
 			await method_link(parameter_data)
 
-	async def new_connection_handler (self, data: dict[str, str | int]) -> None:
+	async def new_quiz_handler (self, data: dict[str, str | dict[str, str]]) -> None:
 		"""
 		Получена информация о пользователе
 		"""
 
-		assert self.user_identifier is None, 'You have already logged in before'
+		assert self.student_identifier is None, 'You have already logged in before'
 
 		# ===== ===== ===== ===== =====
 
-		parameter_version    = data['version']
-		parameter_identifier = data['identifier']
-		parameter_name       = data['name']
+		parameter_version = data['version']
 
-		assert isinstance(parameter_version,    str)
-		assert isinstance(parameter_identifier, int)
-		assert isinstance(parameter_name,       str)
+		parameter_class_room              = data['class_room']
+		parameter_class_room_id           = parameter_class_room['id']
+		parameter_class_room_name         = parameter_class_room['name']
+		parameter_class_room_teacher_name = parameter_class_room['teacher_name']
+
+		parameter_student            = data['student']
+		parameter_student_id         = parameter_student['id']
+		parameter_student_first_name = parameter_student['first_name']
+
+		assert isinstance(parameter_version, str)
+
+		assert isinstance(parameter_class_room_id,           str)
+		assert isinstance(parameter_class_room_name,         str)
+		assert isinstance(parameter_class_room_teacher_name, str)
+
+		assert isinstance(parameter_student_id,         str)
+		assert isinstance(parameter_student_first_name, str)
 
 		# ===== ===== ===== ===== =====
 
-		self.extension_version = parameter_version
-		self.user_identifier   = parameter_identifier
+		self.extension_version  = parameter_version
+		self.student_identifier = parameter_student_id
 
-		self.database.replace_if_exists_else_add_user(
-			identifier = parameter_identifier,
-			name       = parameter_name,
+		self.database.replace_if_exists_else_add_class_room(
+			identifier   = parameter_class_room_id,
+			name         = parameter_class_room_name,
+			teacher_name = parameter_class_room_teacher_name,
+		)
+
+		self.database.replace_if_exists_else_add_student(
+			identifier       = parameter_student_id,
+			first_name       = parameter_student_first_name,
+			class_identifier = parameter_class_room_id,
 		)
 
 	async def new_question_handler (self, data: dict[str, str | int | list]) -> None:
@@ -64,13 +83,13 @@ class Lobby:
 		Получена информация о вопросе
 		"""
 
-		assert self.user_identifier is not None, 'User information not transferred'
+		assert self.student_identifier is not None, 'User information not transferred'
 
 		# ===== ===== ===== ===== =====
 
 		parameter_formulation_html = data['formulationHTML']
 		parameter_identifier       = data['identifier']
-		parameter_options          = data['options']
+		parameter_options          = data['choices']
 
 		assert isinstance(parameter_formulation_html, str)
 		assert isinstance(parameter_identifier,       int)
@@ -102,7 +121,7 @@ class Lobby:
 
 		# answer
 		self.database.add_answer_if_not_duplicated(
-			user_identifier     = self.user_identifier,
+			student_identifier  = self.student_identifier,
 			question_identifier = self.question_identifier,
 		)
 
@@ -111,7 +130,7 @@ class Lobby:
 		Получена информация о выбранном ответе
 		"""
 
-		assert self.user_identifier is not None and self.question_identifier is not None, 'User or question information not passed'
+		assert self.student_identifier is not None and self.question_identifier is not None, 'User or question information not passed'
 
 		# ===== ===== ===== ===== =====
 
@@ -120,7 +139,7 @@ class Lobby:
 		# ===== ===== ===== ===== =====
 
 		self.database.change_user_answer(
-			user_identifier     = self.user_identifier,
+			student_identifier  = self.student_identifier,
 			question_identifier = self.question_identifier,
 			option_identifier   = data,
 		)
@@ -133,7 +152,7 @@ class Lobby:
 		self.manager.broadcast(Message(
 			typ  = '',
 			data = {
-				'type': 'options_recalculated',
+				'type': 'answers_recalculated',
 				'data': options,
 			}
 		))
