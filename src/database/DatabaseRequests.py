@@ -95,7 +95,7 @@ class DatabaseRequests:
 		with self.database.get_connection() as connection:
 			with connection.cursor() as cursor:
 				cursor.execute(
-					'UPDATE `answers` SET `option_identifier` = %(option_identifier)s WHERE `student_identifier` = %(student_identifier)s AND `question_identifier` = %(question_identifier)s',
+					'UPDATE `answers` SET `changed_at` = CURRENT_TIMESTAMP(), `option_identifier` = %(option_identifier)s WHERE `student_identifier` = %(student_identifier)s AND `question_identifier` = %(question_identifier)s',
 					{
 						'student_identifier'  : student_identifier,
 						'question_identifier' : question_identifier,
