@@ -1,4 +1,6 @@
 
+from datetime import datetime
+
 from fastapi import APIRouter
 from redis.commands.helpers import random_string
 from starlette.websockets import WebSocket
@@ -19,6 +21,8 @@ async def websocket_endpoint (websocket: WebSocket) -> None:
 	connection = await manager.new_connection(websocket, identifier)
 	lobby      = Lobby(database_requests, manager, connection)
 
+	connected_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
 	try:
 		await lobby.handler()
 
@@ -32,3 +36,14 @@ async def websocket_endpoint (websocket: WebSocket) -> None:
 
 	finally:
 		manager.remove_connection(connection)
+
+		disconnected_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+		database_requests.add_connection_to_history(
+			connected_at    = connected_at,
+			disconnected_at = disconnected_at,
+
+			ip_address         = websocket.client.host,
+			student_identifier = lobby.student_identifier,
+			extension_version  = lobby.extension_version,
+		)
