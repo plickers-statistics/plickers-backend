@@ -28,8 +28,8 @@ async def websocket_endpoint (websocket: WebSocket) -> None:
 
 	except Exception as error:
 		await connection.send_json({
-			'type' : 'error',
-			'data' : 'type: ' + type(error).__name__ + ', text: ' + str(error)
+			'type' : 'notification',
+			'data' : '[ERROR] type: ' + type(error).__name__ + ', text: ' + str(error)
 		})
 
 		raise error
