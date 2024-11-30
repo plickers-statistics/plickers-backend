@@ -66,10 +66,10 @@ class Lobby:
 		self.extension_version  = parameter_version
 		self.student_identifier = parameter_student_id
 
-		if self.extension_version != '1.0':
+		if self.extension_version != '1.2':
 			await self.connection.send_json({
 				'type': 'notification',
-				'data': 'Доступна новая версия => 1.0',
+				'data': 'Доступна новая версия => 1.2',
 			})
 
 		self.database.replace_if_exists_else_add_class_room(
