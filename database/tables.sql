@@ -18,7 +18,7 @@ CREATE TABLE `classes`
 );
 
 -- студенты в классах
-CREATE TABLE `students`
+CREATE TABLE `students_in_classes`
 (
     `identifier` VARCHAR(24) PRIMARY KEY CHECK ( LENGTH(`identifier`) = 24 ),
 
@@ -29,8 +29,8 @@ CREATE TABLE `students`
     `class_identifier` VARCHAR(24) NOT NULL REFERENCES `classes` (`identifier`)
 );
 
--- история подключений
-CREATE TABLE `connection_history`
+-- история подключений студентов
+CREATE TABLE `student_connection_history`
 (
     `identifier` INTEGER PRIMARY KEY AUTO_INCREMENT,
 
@@ -38,13 +38,13 @@ CREATE TABLE `connection_history`
     `disconnected_at` TIMESTAMP NOT NULL,
 
     `ip_address`         TEXT        NOT NULL,
-    `student_identifier` VARCHAR(24)     NULL REFERENCES `students` (`identifier`),
+    `student_identifier` VARCHAR(24)     NULL REFERENCES `students_in_classes` (`identifier`),
     `extension_version`  TEXT            NULL
 );
 
 /* ===== ===== ===== ===== ===== */
 
--- вопросы
+-- банк вопросов
 CREATE TABLE `questions`
 (
     `identifier` INTEGER PRIMARY KEY,
@@ -55,8 +55,8 @@ CREATE TABLE `questions`
     `formulation_html` TEXT NOT NULL
 );
 
--- варианты ответов
-CREATE TABLE `options`
+-- варианты ответов на вопрос
+CREATE TABLE `question_options`
 (
     `identifier` INTEGER PRIMARY KEY AUTO_INCREMENT,
 
@@ -68,15 +68,15 @@ CREATE TABLE `options`
     `formulation_html`    TEXT    NOT NULL
 );
 
--- ответы пользователей
-CREATE TABLE `answers`
+-- ответы студентов
+CREATE TABLE `student_answers`
 (
     `identifier` INTEGER PRIMARY KEY AUTO_INCREMENT,
 
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
 
-    `student_identifier`  VARCHAR(24) NOT NULL REFERENCES `students` (`identifier`),
+    `student_identifier`  VARCHAR(24) NOT NULL REFERENCES `students_in_classes` (`identifier`),
     `question_identifier` INTEGER     NOT NULL REFERENCES `questions` (`identifier`),
     `option_identifier`   INTEGER         NULL
 );

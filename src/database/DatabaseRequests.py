@@ -70,11 +70,11 @@ class DatabaseRequests:
 		with self.database.get_cursor() as cursor:
 			cursor.execute(
 				'''
-					INSERT INTO `options`
+					INSERT INTO `question_options`
 						(`question_identifier`, `option_identifier`, `formulation_html`)
 					SELECT %(question_identifier)s, %(option_identifier)s, %(formulation_html)s
 					WHERE NOT EXISTS (
-						SELECT 1 FROM `options` WHERE `question_identifier` = %(question_identifier)s AND `option_identifier` = %(option_identifier)s
+						SELECT 1 FROM `question_options` WHERE `question_identifier` = %(question_identifier)s AND `option_identifier` = %(option_identifier)s
 					)
 				''',
 
@@ -97,11 +97,11 @@ class DatabaseRequests:
 		with self.database.get_cursor() as cursor:
 			cursor.execute(
 				'''
-					INSERT INTO `answers`
+					INSERT INTO `student_answers`
 						(`student_identifier`, `question_identifier`, `option_identifier`)
 					SELECT %(student_identifier)s, %(question_identifier)s, NULL
 					WHERE NOT EXISTS (
-						SELECT 1 FROM `answers` WHERE `student_identifier` = %(student_identifier)s AND `question_identifier` = %(question_identifier)s
+						SELECT 1 FROM `student_answers` WHERE `student_identifier` = %(student_identifier)s AND `question_identifier` = %(question_identifier)s
 					)
 				''',
 
@@ -123,7 +123,7 @@ class DatabaseRequests:
 
 		with self.database.get_cursor() as cursor:
 			cursor.execute(
-				'UPDATE `answers` SET `changed_at` = CURRENT_TIMESTAMP(), `option_identifier` = %(option_identifier)s WHERE `student_identifier` = %(student_identifier)s AND `question_identifier` = %(question_identifier)s',
+				'UPDATE `student_answers` SET `changed_at` = CURRENT_TIMESTAMP(), `option_identifier` = %(option_identifier)s WHERE `student_identifier` = %(student_identifier)s AND `question_identifier` = %(question_identifier)s',
 				{
 					'student_identifier'  : student_identifier,
 					'question_identifier' : question_identifier,
@@ -146,7 +146,7 @@ class DatabaseRequests:
 						`option_identifier`         AS `identifier`,
 						COUNT(*)                    AS `votes`,
 						JSON_ARRAYAGG(`first_name`) AS `users`
-					FROM `answers` JOIN `students` ON `answers`.`student_identifier` = `students`.`identifier`
+					FROM `student_answers` JOIN `students_in_classes` ON `student_answers`.`student_identifier` = `students_in_classes`.`identifier`
 					WHERE `question_identifier` = %(question_identifier)s
 					GROUP BY `option_identifier` LIMIT 100
 				''',
@@ -180,7 +180,7 @@ class DatabaseRequests:
 		with self.database.get_cursor() as cursor:
 			cursor.execute(
 				'''
-					INSERT INTO `connection_history`
+					INSERT INTO `student_connection_history`
 						(`connected_at`, `disconnected_at`, `ip_address`, `student_identifier`, `extension_version`)
 					VALUES
 						(%(connected_at)s, %(disconnected_at)s, %(ip_address)s, %(student_identifier)s, %(extension_version)s);
