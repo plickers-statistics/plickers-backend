@@ -5,7 +5,7 @@ from distributed_websocket import WebSocketManager
 from fastapi import FastAPI
 
 from src.database.DatabaseContext import DatabaseContext
-from src.database.DatabaseRequests import DatabaseRequests
+from src.database.requests.DatabaseRequests import DatabaseRequests
 
 
 database_context = DatabaseContext(

@@ -1,7 +1,7 @@
 
 from distributed_websocket import Connection, WebSocketManager, Message
 
-from src.database.DatabaseRequests import DatabaseRequests
+from src.database.requests.DatabaseRequests import DatabaseRequests
 
 
 class Lobby:
