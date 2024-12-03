@@ -12,8 +12,11 @@ database_context = DatabaseContext(
 	username  = 'root',
 	password  = 'root',
 	database  = '__plickers',
+
 	charset   = 'utf-8',
-	collation = 'utf8mb4_general_ci'
+	collation = 'utf8mb4_general_ci',
+
+	autocommit = True,
 )
 
 database_requests = DatabaseRequests(
