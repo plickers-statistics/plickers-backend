@@ -4,11 +4,11 @@ from contextlib import asynccontextmanager
 from distributed_websocket import WebSocketManager
 from fastapi import FastAPI
 
-from src.database.DatabaseConnection import DatabaseConnection
+from src.database.DatabaseContext import DatabaseContext
 from src.database.DatabaseRequests import DatabaseRequests
 
 
-database_connection = DatabaseConnection(
+database_context = DatabaseContext(
 	username  = 'root',
 	password  = 'root',
 	database  = '__plickers',
@@ -17,7 +17,7 @@ database_connection = DatabaseConnection(
 )
 
 database_requests = DatabaseRequests(
-	database = database_connection
+	database = database_context
 )
 
 manager = WebSocketManager(
