@@ -3,6 +3,8 @@ from distributed_websocket import Connection, WebSocketManager, Message
 
 from src.database.requests.DatabaseRequests import DatabaseRequests
 
+from src.lobby.DTOs.NewQuizDTO import NewQuizDTO
+
 
 class Lobby:
 	"""
@@ -39,32 +41,10 @@ class Lobby:
 
 		assert self.student_identifier is None, 'You have already logged in before'
 
-		# ===== ===== ===== ===== =====
+		dto = NewQuizDTO(**data)
 
-		parameter_version = data['version']
-
-		parameter_class_room              = data['class_room']
-		parameter_class_room_id           = parameter_class_room['id']
-		parameter_class_room_name         = parameter_class_room['name']
-		parameter_class_room_teacher_name = parameter_class_room['teacher_name']
-
-		parameter_student            = data['student']
-		parameter_student_id         = parameter_student['id']
-		parameter_student_first_name = parameter_student['first_name']
-
-		assert isinstance(parameter_version, str)
-
-		assert isinstance(parameter_class_room_id,           str)
-		assert isinstance(parameter_class_room_name,         str)
-		assert isinstance(parameter_class_room_teacher_name, str)
-
-		assert isinstance(parameter_student_id,         str)
-		assert isinstance(parameter_student_first_name, str)
-
-		# ===== ===== ===== ===== =====
-
-		self.extension_version  = parameter_version
-		self.student_identifier = parameter_student_id
+		self.extension_version  = dto.version
+		self.student_identifier = dto.student.id
 
 		if self.extension_version != '1.2':
 			await self.connection.send_json({
@@ -73,15 +53,15 @@ class Lobby:
 			})
 
 		self.database.replace_or_add_class_room(
-			identifier   = parameter_class_room_id,
-			name         = parameter_class_room_name,
-			teacher_name = parameter_class_room_teacher_name,
+			identifier   = dto.class_room.id,
+			name         = dto.class_room.name,
+			teacher_name = dto.class_room.teacher_name,
 		)
 
 		self.database.replace_or_add_student(
-			identifier       = parameter_student_id,
-			first_name       = parameter_student_first_name,
-			class_identifier = parameter_class_room_id,
+			identifier       = dto.student.id,
+			first_name       = dto.student.first_name,
+			class_identifier = dto.class_room.id,
 		)
 
 	async def new_question_handler (self, data: dict[str, str | int | list]) -> None:
