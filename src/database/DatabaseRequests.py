@@ -7,23 +7,46 @@ class DatabaseRequests:
 	def __init__(self, database: DatabaseConnection):
 		self.database = database
 
-	def replace_if_exists_else_add_class_room (self, identifier: str, name: str, teacher_name: str) -> None:
+	def replace_if_exists_else_add_class_room (
+		self,
+
+		identifier   : str,
+		name         : str,
+		teacher_name : str,
+	) -> None:
 		"""
 		"""
 
 		with self.database.get_connection() as connection:
 			with connection.cursor() as cursor:
-				cursor.callproc('REPLACE_IF_EXISTS_ELSE_ADD_CLASS_ROOM', (identifier, name, teacher_name))
+				cursor.callproc(
+					'REPLACE_IF_EXISTS_ELSE_ADD_CLASS_ROOM',
+					(identifier, name, teacher_name),
+				)
 
-	def replace_if_exists_else_add_student (self, identifier: str, first_name: str, class_identifier: str) -> None:
+	def replace_if_exists_else_add_student (
+		self,
+
+		identifier       : str,
+		first_name       : str,
+		class_identifier : str,
+	) -> None:
 		"""
 		"""
 
 		with self.database.get_connection() as connection:
 			with connection.cursor() as cursor:
-				cursor.callproc('REPLACE_IF_EXISTS_ELSE_ADD_STUDENT', (identifier, first_name, class_identifier))
+				cursor.callproc(
+					'REPLACE_IF_EXISTS_ELSE_ADD_STUDENT',
+					(identifier, first_name, class_identifier),
+				)
 
-	def add_question_if_not_duplicated (self, identifier: int, formulation_html: str) -> None:
+	def add_question_if_not_duplicated (
+		self,
+
+		identifier       : int,
+		formulation_html : str,
+	) -> None:
 		"""
 		"""
 
@@ -39,7 +62,13 @@ class DatabaseRequests:
 
 			connection.commit()
 
-	def add_option_if_not_duplicated (self, question_identifier: int, option_identifier: int, option_formulation_html: str) -> None:
+	def add_option_if_not_duplicated (
+		self,
+
+		question_identifier     : int,
+		option_identifier       : int,
+		option_formulation_html : str,
+	) -> None:
 		"""
 		"""
 
@@ -64,7 +93,12 @@ class DatabaseRequests:
 
 			connection.commit()
 
-	def add_answer_if_not_duplicated (self, student_identifier: str, question_identifier: int) -> None:
+	def add_answer_if_not_duplicated (
+		self,
+
+		student_identifier  : str,
+		question_identifier : int,
+	) -> None:
 		"""
 		"""
 
@@ -88,7 +122,13 @@ class DatabaseRequests:
 
 			connection.commit()
 
-	def change_user_answer (self, student_identifier: str, question_identifier: int, option_identifier: int) -> None:
+	def change_user_answer (
+		self,
+
+		student_identifier  : str,
+		question_identifier : int,
+		option_identifier   : int,
+	) -> None:
 		"""
 		"""
 
@@ -105,7 +145,11 @@ class DatabaseRequests:
 
 			connection.commit()
 
-	def get_answer_statistics (self, question_identifier: int) -> list:
+	def get_answer_statistics (
+		self,
+
+		question_identifier : int,
+	) -> list:
 		"""
 		"""
 
