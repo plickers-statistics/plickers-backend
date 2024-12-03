@@ -72,13 +72,13 @@ class Lobby:
 				'data': 'Доступна новая версия => 1.2',
 			})
 
-		self.database.replace_if_exists_else_add_class_room(
+		self.database.replace_or_add_class_room(
 			identifier   = parameter_class_room_id,
 			name         = parameter_class_room_name,
 			teacher_name = parameter_class_room_teacher_name,
 		)
 
-		self.database.replace_if_exists_else_add_student(
+		self.database.replace_or_add_student(
 			identifier       = parameter_student_id,
 			first_name       = parameter_student_first_name,
 			class_identifier = parameter_class_room_id,

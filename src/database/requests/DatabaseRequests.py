@@ -1,6 +1,7 @@
 
 from src.database.DatabaseContext import DatabaseContext
 
+from src.database.requests.ClassRoomRequests import ClassRoomRequests
 from src.database.requests.ConnectionHistoryRequests import ConnectionHistoryRequests
 
 
@@ -11,41 +12,16 @@ class DatabaseRequests:
 
 		# ===== ===== ===== ===== =====
 
+		self.class_room_requests = ClassRoomRequests(database)
+
+		self.replace_or_add_class_room = self.class_room_requests.replace_or_add_class_room
+		self.replace_or_add_student    = self.class_room_requests.replace_or_add_student
+
+		# ===== ===== ===== ===== =====
+
 		self.connection_history_requests = ConnectionHistoryRequests(database)
 
 		self.add_connection_to_history = self.connection_history_requests.add_connection_to_history
-
-	def replace_if_exists_else_add_class_room (
-		self,
-
-		identifier   : str,
-		name         : str,
-		teacher_name : str,
-	) -> None:
-		"""
-		"""
-
-		with self.database.get_cursor() as cursor:
-			cursor.callproc(
-				'REPLACE_IF_EXISTS_ELSE_ADD_CLASS_ROOM',
-				(identifier, name, teacher_name),
-			)
-
-	def replace_if_exists_else_add_student (
-		self,
-
-		identifier       : str,
-		first_name       : str,
-		class_identifier : str,
-	) -> None:
-		"""
-		"""
-
-		with self.database.get_cursor() as cursor:
-			cursor.callproc(
-				'REPLACE_IF_EXISTS_ELSE_ADD_STUDENT',
-				(identifier, first_name, class_identifier),
-			)
 
 	def add_question_if_not_duplicated (
 		self,
