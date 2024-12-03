@@ -35,18 +35,18 @@ CREATE OR REPLACE PROCEDURE REPLACE_IF_EXISTS_ELSE_ADD_STUDENT
     IN parameter_class_identifier VARCHAR(24)
 )
 BEGIN
-    SET @first_name := (SELECT `first_name` FROM `students` WHERE `identifier` = parameter_identifier LIMIT 1);
+    SET @first_name := (SELECT `first_name` FROM `students_in_classes` WHERE `identifier` = parameter_identifier LIMIT 1);
 
     IF (@first_name IS NULL)
     THEN
-        INSERT INTO `students`
+        INSERT INTO `students_in_classes`
             (`identifier`, `first_name`, `class_identifier`)
         VALUES
             (parameter_identifier, parameter_first_name, parameter_class_identifier);
     ELSE
         IF (@first_name != parameter_first_name)
         THEN
-            UPDATE `students` SET
+            UPDATE `students_in_classes` SET
                 `changed_at` = CURRENT_TIMESTAMP(),
                 `first_name` = parameter_first_name
             WHERE `identifier` = parameter_identifier;
