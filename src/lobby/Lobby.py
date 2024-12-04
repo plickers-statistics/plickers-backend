@@ -102,12 +102,6 @@ class Lobby:
 
 		assert self.student_identifier is not None and self.question_identifier is not None, 'User or question information not passed'
 
-		# ===== ===== ===== ===== =====
-
-		assert isinstance(data, int)
-
-		# ===== ===== ===== ===== =====
-
 		self.database.change_user_answer(
 			student_identifier  = self.student_identifier,
 			question_identifier = self.question_identifier,
