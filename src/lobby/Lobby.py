@@ -4,6 +4,7 @@ from distributed_websocket import Connection, WebSocketManager, Message
 from src.database.requests.DatabaseRequests import DatabaseRequests
 
 from src.lobby.DTOs.NewQuizDTO import NewQuizDTO
+from src.lobby.DTOs.validate_data import validate_data
 
 
 class Lobby:
@@ -34,17 +35,16 @@ class Lobby:
 
 			await method_link(parameter_data)
 
-	async def new_quiz_handler (self, data: dict[str, str | dict[str, str]]) -> None:
+	@validate_data
+	async def new_quiz_handler (self, data: NewQuizDTO) -> None:
 		"""
 		Получена информация о пользователе
 		"""
 
 		assert self.student_identifier is None, 'You have already logged in before'
 
-		dto = NewQuizDTO(**data)
-
-		self.extension_version  = dto.version
-		self.student_identifier = dto.student.id
+		self.extension_version  = data.version
+		self.student_identifier = data.student.id
 
 		if self.extension_version != '1.2':
 			await self.connection.send_json({
@@ -53,15 +53,15 @@ class Lobby:
 			})
 
 		self.database.replace_or_add_class_room(
-			identifier   = dto.class_room.id,
-			name         = dto.class_room.name,
-			teacher_name = dto.class_room.teacher_name,
+			identifier   = data.class_room.id,
+			name         = data.class_room.name,
+			teacher_name = data.class_room.teacher_name,
 		)
 
 		self.database.replace_or_add_student(
-			identifier       = dto.student.id,
-			first_name       = dto.student.first_name,
-			class_identifier = dto.class_room.id,
+			identifier       = data.student.id,
+			first_name       = data.student.first_name,
+			class_identifier = data.class_room.id,
 		)
 
 	async def new_question_handler (self, data: dict[str, str | int | list]) -> None:
