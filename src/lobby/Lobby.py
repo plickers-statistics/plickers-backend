@@ -4,6 +4,7 @@ from distributed_websocket import Connection, WebSocketManager, Message
 from src.database.requests.DatabaseRequests import DatabaseRequests
 
 from src.lobby.DTOs.NewQuizDTO import NewQuizDTO
+from src.lobby.DTOs.NewQuestionDTO import NewQuestionDTO
 from src.lobby.DTOs.validate_data import validate_data
 
 
@@ -64,45 +65,28 @@ class Lobby:
 			class_identifier = data.class_room.id,
 		)
 
-	async def new_question_handler (self, data: dict[str, str | int | list]) -> None:
+	@validate_data
+	async def new_question_handler (self, data: NewQuestionDTO) -> None:
 		"""
 		Получена информация о вопросе
 		"""
 
 		assert self.student_identifier is not None, 'User information not transferred'
 
-		# ===== ===== ===== ===== =====
-
-		parameter_formulation_html = data['formulationHTML']
-		parameter_identifier       = data['identifier']
-		parameter_options          = data['choices']
-
-		assert isinstance(parameter_formulation_html, str)
-		assert isinstance(parameter_identifier,       int)
-		assert isinstance(parameter_options,          list)
-
-		# ===== ===== ===== ===== =====
-
-		self.question_identifier = parameter_identifier
+		self.question_identifier = data.identifier
 
 		# question
 		self.database.add_question_if_not_duplicated(
-			identifier       = parameter_identifier,
-			formulation_html = parameter_formulation_html,
+			identifier       = data.identifier,
+			formulation_html = data.formulation_html,
 		)
 
 		# options
-		for option in parameter_options:
-			option_formulation_html = option['formulationHTML']
-			option_identifier       = option['identifier']
-
-			assert isinstance(option_formulation_html, str)
-			assert isinstance(option_identifier,       int)
-
+		for option in data.options:
 			self.database.add_option_if_not_duplicated(
 				question_identifier     = self.question_identifier,
-				option_identifier       = option_identifier,
-				option_formulation_html = option_formulation_html,
+				option_identifier       = option.identifier,
+				option_formulation_html = option.formulation_html,
 			)
 
 		# answer
