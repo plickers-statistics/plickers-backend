@@ -21,7 +21,8 @@ async def websocket_endpoint (websocket: WebSocket) -> None:
 	connection = await manager.new_connection(websocket, identifier)
 	lobby      = Lobby(database_requests, manager, connection)
 
-	connected_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+	lobby.connected_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+	lobby.ip_address   = websocket.client.host
 
 	try:
 		await lobby.handler()
@@ -40,10 +41,10 @@ async def websocket_endpoint (websocket: WebSocket) -> None:
 		disconnected_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 		database_requests.add_connection_to_history(
-			connected_at    = connected_at,
+			connected_at    = lobby.connected_at,
 			disconnected_at = disconnected_at,
 
-			ip_address         = websocket.client.host,
+			ip_address         = lobby.ip_address,
 			student_identifier = lobby.student_identifier,
 			extension_version  = lobby.extension_version,
 		)

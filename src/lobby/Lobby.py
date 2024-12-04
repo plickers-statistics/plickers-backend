@@ -13,8 +13,16 @@ class Lobby:
 	Лобби подключения
 	"""
 
-	extension_version   : str | None = None
-	student_identifier  : str | None = None
+	ip_address   = ''
+	connected_at = ''
+
+	# ===== ===== ===== ===== =====
+
+	extension_version : str | None = None
+
+	class_room_identifier : str | None = None
+	student_identifier    : str | None = None
+
 	question_identifier : int | None = None
 
 	def __init__ (self, database: DatabaseRequests, manager: WebSocketManager, connection: Connection):
@@ -44,8 +52,12 @@ class Lobby:
 
 		assert self.student_identifier is None, 'You have already logged in before'
 
-		self.extension_version  = data.version
-		self.student_identifier = data.student.id
+		self.extension_version     = data.version
+		self.class_room_identifier = data.class_room.id
+		self.student_identifier    = data.student.id
+
+		self.connection.topics.add('class_room-' + self.class_room_identifier)
+		self.connection.topics.add('student-'    + self.student_identifier)
 
 		if self.extension_version != '1.2':
 			await self.connection.send_json({
@@ -72,6 +84,10 @@ class Lobby:
 		"""
 
 		assert self.student_identifier is not None, 'User information not transferred'
+
+		# С помощью topics distributed_websocket определяет кому отправлять события
+		self.connection.topics.discard('question-' + str(self.question_identifier))
+		self.connection.topics.add    ('question-' + str(data.identifier))
 
 		self.question_identifier = data.identifier
 
@@ -113,9 +129,12 @@ class Lobby:
 			question_identifier = self.question_identifier,
 		)
 
-		self.manager.broadcast(Message(
+		self.manager.send(Message(
 			typ  = '',
-			data = {
+
+			# Отправить всем, у кого такой же вопрос (идентификатор)
+			topic = 'question-' + str(self.question_identifier),
+			data  = {
 				'type': 'answers_recalculated',
 				'data': options,
 			}
