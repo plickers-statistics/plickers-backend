@@ -44,7 +44,11 @@ class Lobby:
 		except CustomException as error:
 			await self.connection.send_json({
 				'type': 'notification',
-				'data': '[%s] %s' % (type(error).__name__, str(error))
+				'data': '\n'.join([
+					'[SERVER_ERROR]',
+					'type: %s' % type(error).__name__,
+					'text: %s' % str(error),
+				])
 			})
 
 			await self.connection.close()
