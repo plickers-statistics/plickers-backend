@@ -16,7 +16,11 @@ BEGIN
     ON DUPLICATE KEY UPDATE
         `name`         = VALUES(`name`),
         `teacher_name` = VALUES(`teacher_name`),
-        `changed_at`   = CURRENT_TIMESTAMP();
+        `changed_at`   = IF(
+            parameter_name = VALUES(`name`) AND parameter_teacher_name = VALUES(`teacher_name`),
+            VALUES(`changed_at`),
+            CURRENT_TIMESTAMP()
+        );
 
     COMMIT;
 END;
@@ -37,7 +41,11 @@ BEGIN
     VALUES (parameter_identifier, parameter_first_name, parameter_class_identifier)
     ON DUPLICATE KEY UPDATE
         `first_name` = VALUES(`first_name`),
-        `changed_at` = CURRENT_TIMESTAMP();
+        `changed_at` = IF(
+            parameter_first_name = VALUES(`first_name`),
+            VALUES(`changed_at`),
+            CURRENT_TIMESTAMP()
+        );
 
     COMMIT;
 END;
