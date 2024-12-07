@@ -3,6 +3,9 @@ from distributed_websocket import Connection, WebSocketManager, Message
 
 from src.database.requests.DatabaseRequests import DatabaseRequests
 
+from src.exceptions.CustomException import CustomException
+from src.exceptions.ExtensionVersionException import check_extension_version
+
 from src.lobby.DTOs.NewQuizDTO import NewQuizDTO
 from src.lobby.DTOs.NewQuestionDTO import NewQuestionDTO
 from src.lobby.DTOs.validate_data import validate_data
@@ -30,19 +33,34 @@ class Lobby:
 		self.manager    = manager
 		self.connection = connection
 
-	async def handler (self) -> None:
+	async def loop (self) -> None:
 		"""
-		Обрабатывает новые сообщения
 		"""
 
-		async for message in self.connection.iter_json():
-			parameter_type = message['type']
-			parameter_data = message['data']
+		try:
+			async for message in self.connection.iter_json():
+				await self.handler(message)
 
-			method_name = parameter_type + '_handler'
-			method_link = getattr(self, method_name)
+		except CustomException as error:
+			await self.connection.send_json({
+				'type': 'notification',
+				'data': '[%s] %s' % (type(error).__name__, str(error))
+			})
 
-			await method_link(parameter_data)
+			await self.connection.close()
+
+	async def handler (self, message: dict[str]) -> None:
+		"""
+		Обрабатывает новое сообщение
+		"""
+
+		parameter_type = message['type']
+		parameter_data = message['data']
+
+		method_name = parameter_type + '_handler'
+		method_link = getattr(self, method_name)
+
+		await method_link(parameter_data)
 
 	@validate_data
 	async def new_quiz_handler (self, data: NewQuizDTO) -> None:
@@ -59,11 +77,10 @@ class Lobby:
 		self.connection.topics.add('class_room-' + self.class_room_identifier)
 		self.connection.topics.add('student-'    + self.student_identifier)
 
-		if self.extension_version != '1.3':
-			await self.connection.send_json({
-				'type': 'notification',
-				'data': 'Доступна новая версия => 1.3',
-			})
+		await check_extension_version(
+			connection        = self.connection,
+			extension_version = self.extension_version,
+		)
 
 		self.database.replace_or_add_class_room(
 			identifier   = data.class_room.id,

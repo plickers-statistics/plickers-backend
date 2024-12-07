@@ -25,12 +25,12 @@ async def websocket_endpoint (websocket: WebSocket) -> None:
 	lobby.ip_address   = websocket.client.host
 
 	try:
-		await lobby.handler()
+		await lobby.loop()
 
 	except Exception as error:
 		await connection.send_json({
 			'type' : 'notification',
-			'data' : '[SERVER_ERROR] type: ' + type(error).__name__ + ', text: ' + str(error)
+			'data' : '[SERVER_ERROR] type: %s, text: %s' % (type(error).__name__, str(error))
 		})
 
 		raise error
