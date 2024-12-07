@@ -13,6 +13,9 @@ class NewQuestionDTO(BaseModel):
 	"""
 	"""
 
+	template : str
+
 	formulation_html : str = Field(alias = 'formulationHTML')
 	identifier       : int
-	options          : list[QuestionOptionsDTO]
+
+	options : list[QuestionOptionsDTO]

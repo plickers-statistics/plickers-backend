@@ -7,6 +7,8 @@ class QuestionRequests(RequestsAbstract):
 	def add_question_if_not_duplicated (
 		self,
 
+		template : str,
+
 		identifier       : int,
 		formulation_html : str,
 	) -> None:
@@ -15,8 +17,10 @@ class QuestionRequests(RequestsAbstract):
 
 		with self.database.get_cursor() as cursor:
 			cursor.execute(
-				'INSERT IGNORE INTO `questions` (`identifier`, `formulation_html`) VALUES (%(identifier)s, %(formulation_html)s)',
+				'INSERT IGNORE INTO `questions` (`identifier`, `formulation_html`, `template`) VALUES (%(identifier)s, %(formulation_html)s, %(template)s)',
 				{
+					'template' : template,
+
 					'identifier'       : identifier,
 					'formulation_html' : formulation_html,
 				}

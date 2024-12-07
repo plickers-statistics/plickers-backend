@@ -93,6 +93,8 @@ class Lobby:
 
 		# question
 		self.database.add_question_if_not_duplicated(
+			template = data.template,
+
 			identifier       = data.identifier,
 			formulation_html = data.formulation_html,
 		)

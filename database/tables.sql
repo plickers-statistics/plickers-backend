@@ -52,7 +52,8 @@ CREATE TABLE `questions`
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
 
-    `formulation_html` TEXT NOT NULL
+    `formulation_html` TEXT NOT NULL,
+    `template`         TEXT NOT NULL
 );
 
 -- варианты ответов на вопрос
