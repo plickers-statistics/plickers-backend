@@ -6,9 +6,9 @@ from src.database.requests.DatabaseRequests import DatabaseRequests
 from src.exceptions.CustomException import CustomException
 from src.exceptions.ExtensionVersionException import check_extension_version
 
-from src.lobby.DTOs.NewQuizDTO import NewQuizDTO
-from src.lobby.DTOs.NewQuestionDTO import NewQuestionDTO
-from src.lobby.DTOs.validate_data import validate_data
+from src.DTOs.NewQuizDTO import NewQuizDTO
+from src.DTOs.NewQuestionDTO import NewQuestionDTO
+from src.DTOs.validate_data import validate_data
 
 
 class Lobby:
