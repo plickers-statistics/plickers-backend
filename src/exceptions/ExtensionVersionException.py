@@ -18,5 +18,5 @@ async def check_extension_version (connection: Connection, extension_version: st
 	major_version = int(values[0])
 	minor_version = int(values[1])
 
-	if major_version < 1 or minor_version < 3:
-		raise ExtensionVersionException('Минимальная поддерживаемая версия => 1.3')
+	if major_version < 1 or minor_version < 5:
+		raise ExtensionVersionException('Минимальная поддерживаемая версия => 1.5')
