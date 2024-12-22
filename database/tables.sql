@@ -8,7 +8,7 @@ USE `__plickers`;
 -- классы
 CREATE TABLE `classes`
 (
-    `identifier` VARCHAR(24) PRIMARY KEY CHECK ( LENGTH(`identifier`) = 24 ),
+    `hash_code` CHAR(24) PRIMARY KEY CHECK ( LENGTH(`hash_code`) = 24 ),
 
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
@@ -20,13 +20,13 @@ CREATE TABLE `classes`
 -- студенты в классах
 CREATE TABLE `students_in_classes`
 (
-    `identifier` VARCHAR(24) PRIMARY KEY CHECK ( LENGTH(`identifier`) = 24 ),
+    `hash_code` CHAR(24) PRIMARY KEY CHECK ( LENGTH(`hash_code`) = 24 ),
 
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
 
-    `first_name`       TEXT        NOT NULL,
-    `class_identifier` VARCHAR(24) NOT NULL REFERENCES `classes` (`identifier`)
+    `first_name`      TEXT     NOT NULL,
+    `class_hash_code` CHAR(24) NOT NULL REFERENCES `classes` (`hash_code`)
 );
 
 -- история подключений студентов
@@ -37,9 +37,10 @@ CREATE TABLE `student_connection_history`
     `connected_at`    TIMESTAMP NOT NULL,
     `disconnected_at` TIMESTAMP NOT NULL,
 
-    `ip_address`         TEXT        NOT NULL,
-    `student_identifier` VARCHAR(24)     NULL REFERENCES `students_in_classes` (`identifier`),
-    `extension_version`  TEXT            NULL
+    `ip_address`        TEXT        NOT NULL,
+    `class_hash_code`   VARCHAR(24)     NULL REFERENCES `classes` (`hash_code`),
+    `student_hash_code` VARCHAR(24)     NULL REFERENCES `students_in_classes` (`hash_code`),
+    `extension_version` TEXT            NULL
 );
 
 /* ===== ===== ===== ===== ===== */
@@ -77,9 +78,9 @@ CREATE TABLE `student_answers`
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
 
-    `student_identifier`  VARCHAR(24) NOT NULL REFERENCES `students_in_classes` (`identifier`),
-    `question_identifier` INTEGER     NOT NULL REFERENCES `questions` (`identifier`),
-    `option_identifier`   INTEGER         NULL
+    `student_hash_code`   CHAR(24) NOT NULL REFERENCES `students_in_classes` (`hash_code`),
+    `question_identifier` INTEGER  NOT NULL REFERENCES `questions` (`identifier`),
+    `option_identifier`   INTEGER      NULL
 );
 
 /* ===== ===== ===== ===== ===== */

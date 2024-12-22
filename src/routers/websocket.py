@@ -48,7 +48,9 @@ async def websocket_endpoint (websocket: WebSocket) -> None:
 			connected_at    = lobby.connected_at,
 			disconnected_at = disconnected_at,
 
-			ip_address         = lobby.ip_address,
-			student_identifier = lobby.student_identifier,
-			extension_version  = lobby.extension_version,
+			ip_address = lobby.ip_address,
+
+			class_hash_code   = lobby.class_hash_code,
+			student_hash_code = lobby.student_hash_code,
+			extension_version = lobby.extension_version,
 		)

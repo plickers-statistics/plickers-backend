@@ -23,8 +23,8 @@ class Lobby:
 
 	extension_version : str | None = None
 
-	class_room_identifier : str | None = None
-	student_identifier    : str | None = None
+	class_hash_code   : str | None = None
+	student_hash_code : str | None = None
 
 	question_identifier : int | None = None
 
@@ -72,14 +72,14 @@ class Lobby:
 		Получена информация о пользователе
 		"""
 
-		assert self.student_identifier is None, 'You have already logged in before'
+		assert self.student_hash_code is None, 'You have already logged in before'
 
-		self.extension_version     = data.version
-		self.class_room_identifier = data.class_room.id
-		self.student_identifier    = data.student.id
+		self.extension_version = data.version
+		self.class_hash_code   = data.class_room.hash_code
+		self.student_hash_code = data.student.hash_code
 
-		self.connection.topics.add('class_room-' + self.class_room_identifier)
-		self.connection.topics.add('student-'    + self.student_identifier)
+		self.connection.topics.add('class_room-' + self.class_hash_code)
+		self.connection.topics.add('student-'    + self.student_hash_code)
 
 		await check_extension_version(
 			connection        = self.connection,
@@ -87,15 +87,15 @@ class Lobby:
 		)
 
 		self.database.replace_or_add_class_room(
-			identifier   = data.class_room.id,
+			hash_code    = data.class_room.hash_code,
 			name         = data.class_room.name,
 			teacher_name = data.class_room.teacher_name,
 		)
 
 		self.database.replace_or_add_student(
-			identifier       = data.student.id,
-			first_name       = data.student.first_name,
-			class_identifier = data.class_room.id,
+			hash_code       = data.student.hash_code,
+			first_name      = data.student.first_name,
+			class_hash_code = data.class_room.hash_code,
 		)
 
 	@validate_data
@@ -104,7 +104,7 @@ class Lobby:
 		Получена информация о вопросе
 		"""
 
-		assert self.student_identifier is not None, 'User information not transferred'
+		assert self.student_hash_code is not None, 'User information not transferred'
 
 		# С помощью topics distributed_websocket определяет кому отправлять события
 		self.connection.topics.discard('question-' + str(self.question_identifier))
@@ -130,7 +130,7 @@ class Lobby:
 
 		# answer
 		self.database.add_answer_if_not_duplicated(
-			student_identifier  = self.student_identifier,
+			student_hash_code   = self.student_hash_code,
 			question_identifier = self.question_identifier,
 		)
 
@@ -139,10 +139,10 @@ class Lobby:
 		Получена информация о выбранном ответе
 		"""
 
-		assert self.student_identifier is not None and self.question_identifier is not None, 'User or question information not passed'
+		assert self.student_hash_code is not None and self.question_identifier is not None, 'User or question information not passed'
 
 		self.database.change_user_answer(
-			student_identifier  = self.student_identifier,
+			student_hash_code   = self.student_hash_code,
 			question_identifier = self.question_identifier,
 			option_identifier   = data,
 		)

@@ -57,7 +57,7 @@ class QuestionRequests(RequestsAbstract):
 	def add_answer_if_not_duplicated (
 		self,
 
-		student_identifier  : str,
+		student_hash_code   : str,
 		question_identifier : int,
 	) -> None:
 		"""
@@ -67,15 +67,15 @@ class QuestionRequests(RequestsAbstract):
 			cursor.execute(
 				'''
 					INSERT INTO `student_answers`
-						(`student_identifier`, `question_identifier`, `option_identifier`)
-					SELECT %(student_identifier)s, %(question_identifier)s, NULL
+						(`student_hash_code`, `question_identifier`, `option_identifier`)
+					SELECT %(student_hash_code)s, %(question_identifier)s, NULL
 					WHERE NOT EXISTS (
-						SELECT 1 FROM `student_answers` WHERE `student_identifier` = %(student_identifier)s AND `question_identifier` = %(question_identifier)s
+						SELECT 1 FROM `student_answers` WHERE `student_hash_code` = %(student_hash_code)s AND `question_identifier` = %(question_identifier)s
 					)
 				''',
 
 				{
-					'student_identifier'  : student_identifier,
+					'student_hash_code'   : student_hash_code,
 					'question_identifier' : question_identifier,
 				}
 			)
@@ -83,7 +83,7 @@ class QuestionRequests(RequestsAbstract):
 	def change_user_answer (
 		self,
 
-		student_identifier  : str,
+		student_hash_code   : str,
 		question_identifier : int,
 		option_identifier   : int,
 	) -> None:
@@ -92,9 +92,9 @@ class QuestionRequests(RequestsAbstract):
 
 		with self.database.get_cursor() as cursor:
 			cursor.execute(
-				'UPDATE `student_answers` SET `changed_at` = CURRENT_TIMESTAMP(), `option_identifier` = %(option_identifier)s WHERE `student_identifier` = %(student_identifier)s AND `question_identifier` = %(question_identifier)s',
+				'UPDATE `student_answers` SET `changed_at` = CURRENT_TIMESTAMP(), `option_identifier` = %(option_identifier)s WHERE `student_hash_code` = %(student_hash_code)s AND `question_identifier` = %(question_identifier)s',
 				{
-					'student_identifier'  : student_identifier,
+					'student_hash_code'   : student_hash_code,
 					'question_identifier' : question_identifier,
 					'option_identifier'   : option_identifier,
 				}
@@ -115,7 +115,7 @@ class QuestionRequests(RequestsAbstract):
 						`option_identifier`         AS `identifier`,
 						COUNT(*)                    AS `votes`,
 						JSON_ARRAYAGG(`first_name`) AS `users`
-					FROM `student_answers` JOIN `students_in_classes` ON `student_answers`.`student_identifier` = `students_in_classes`.`identifier`
+					FROM `student_answers` JOIN `students_in_classes` ON `student_answers`.`student_hash_code` = `students_in_classes`.`hash_code`
 					WHERE `question_identifier` = %(question_identifier)s
 					GROUP BY `option_identifier` LIMIT 100
 				''',

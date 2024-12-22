@@ -1,26 +1,26 @@
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ClassRoomDTO(BaseModel):
 	"""
 	"""
 
-	id           : str
+	hash_code    : str = Field(alias = 'hashCode')
 	name         : str
-	teacher_name : str
+	teacher_name : str = Field(alias = 'teacherName')
 
 class StudentDTO(BaseModel):
 	"""
 	"""
 
-	id         : str
-	first_name : str
+	hash_code  : str = Field(alias = 'hashCode')
+	first_name : str = Field(alias = 'firstName')
 
 class NewQuizDTO(BaseModel):
 	"""
 	"""
 
-	class_room : ClassRoomDTO
+	class_room : ClassRoomDTO = Field(alias = 'classRoom')
 	student    : StudentDTO
 	version    : str
